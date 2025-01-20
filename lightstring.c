@@ -10,10 +10,17 @@ typedef struct String{
 }String;
 
 
-String new_string(int size){
+String new_string_empty(int size){
     String s;
     s.text = (char*)malloc(sizeof(char)*size);
     s.length = size;
+    return s;
+}
+
+String new_string(char* text){
+    String s;
+    s.text = text;
+    s.length = strlen(text);
     return s;
 }
 
@@ -24,9 +31,12 @@ void set_string(String* a, char* new, int length){
 }
 
 /// O(n) = n :DDDDDDDDDDDDDDDDDDDDDDDDDDD
-void replace_string(String* a, char* old, int old_size, char* new, int new_size){
+void replace_string(String* a, char* old, char* new){
+    int old_content_size = strlen(old);
+    int new_content_size = strlen(new);
+
     int num_of_occurances = 0; 
-    int index_buffer[a->length * 2]; //Start & end point for indexes
+    int* index_buffer = (int*)malloc(sizeof(int)*(a->length*2)); //Start & end point for indexes
 
     int currently_matching = 0;
     int start_buffer = -1;
@@ -42,7 +52,7 @@ void replace_string(String* a, char* old, int old_size, char* new, int new_size)
             end_buffer = -1;
             currently_matching = 0;
         }
-        if(currently_matching == (old_size)){
+        if(currently_matching == (old_content_size)){
             end_buffer = i;
             if((start_buffer != -1) && (end_buffer != -1)){
                 index_buffer[num_of_occurances * 2] = start_buffer;
@@ -52,7 +62,11 @@ void replace_string(String* a, char* old, int old_size, char* new, int new_size)
             currently_matching = 0;
         }
     }
-    int char_size = (a->length-(num_of_occurances*old_size) + (num_of_occurances*new_size));
+    if(num_of_occurances == 0){ //End function early if no matches were found.
+        return;
+    }
+    
+    int char_size = (a->length-(num_of_occurances*old_content_size) + (num_of_occurances*new_content_size));
     char* new_text = malloc(sizeof(char)*char_size);
     
     int p = 0;
@@ -60,12 +74,12 @@ void replace_string(String* a, char* old, int old_size, char* new, int new_size)
 
     for(int i = 0; i < a->length; ++i){
         if(i == index_buffer[p*2]){
-            for(int j = 0; j < new_size; ++j){
+            for(int j = 0; j < new_content_size; ++j){
                 new_text[current_index] = new[j];
                 current_index += 1;
             }
             p += 1;
-            i += old_size-1;
+            i += old_content_size-1;
             continue;
         }
         new_text[current_index] = a->text[i];
@@ -75,6 +89,8 @@ void replace_string(String* a, char* old, int old_size, char* new, int new_size)
     free(a->text);
     a->text = new_text;
     a->length = char_size;
+
+    free(index_buffer);
 }
 
 String concat_string(char* a, int len_a, char* b, int len_b){
