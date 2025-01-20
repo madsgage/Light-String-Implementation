@@ -13,6 +13,10 @@ typedef struct String{
 String new_string_empty(int size){
     String s;
     s.text = (char*)malloc(sizeof(char)*size);
+    if(s.text == NULL){
+        printf("Could not allocate memory.");
+        exit(-1);
+    }
     s.length = size;
     return s;
 }
@@ -37,6 +41,10 @@ void replace_string(String* a, char* old, char* new){
 
     int num_of_occurances = 0; 
     int* index_buffer = (int*)malloc(sizeof(int)*(a->length*2)); //Start & end point for indexes
+    if(index_buffer == NULL){
+        printf("Could not allocate memory.");
+        exit(-1);
+    }
 
     int currently_matching = 0;
     int start_buffer = -1;
@@ -68,6 +76,10 @@ void replace_string(String* a, char* old, char* new){
     
     int char_size = (a->length-(num_of_occurances*old_content_size) + (num_of_occurances*new_content_size));
     char* new_text = malloc(sizeof(char)*char_size);
+    if(new_text == NULL){
+        printf("Could not allocate memory");
+        exit(-1);
+    }
     
     int p = 0;
     int current_index = 0;
@@ -89,12 +101,17 @@ void replace_string(String* a, char* old, char* new){
     free(a->text);
     a->text = new_text;
     a->length = char_size;
-
     free(index_buffer);
 }
 
-String concat_string(char* a, int len_a, char* b, int len_b){
+String concat_string(char* a, char* b){
+    int len_a = strlen(a);
+    int len_b = strlen(b);
     char* new_text = (char*)malloc(sizeof(char)*(len_a+len_b));
+    if(new_text == NULL){
+        printf("Could not allocate memory");
+        exit(-1);
+    }
     memcpy(new_text,a,len_a);
     memcpy(&new_text[len_a],b,len_b);
 
